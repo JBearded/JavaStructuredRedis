@@ -1,4 +1,4 @@
-package com.bj.redis;
+package com.redis;
 
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
@@ -22,7 +22,6 @@ public class RedisPoolManager {
     public static RedisPoolManager getInstance(){
         return RedisPoolManagerHolder.redisPoolManager;
     }
-
 
     public void init(JedisPoolConfig config, String ip, int port, int timeout) {
         this.jedisPool = new JedisPool(config, ip, port, timeout);

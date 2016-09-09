@@ -1,4 +1,4 @@
-package com.bj.redis.structure;
+package com.redis.structure;
 
 /**
  * @author 谢俊权
