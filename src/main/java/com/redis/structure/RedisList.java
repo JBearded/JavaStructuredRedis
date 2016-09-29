@@ -3,11 +3,9 @@ package com.redis.structure;
 import com.alibaba.fastjson.JSON;
 import com.redis.RedisPoolManager;
 import redis.clients.jedis.Jedis;
-import redis.clients.jedis.Pipeline;
-import redis.clients.jedis.Response;
 
-import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -78,23 +76,25 @@ public class RedisList<T>{
 
     public void sync(){
         Jedis jedis = RedisPoolManager.getInstance().getSource();
-        Pipeline pipeline = jedis.pipelined();
         try {
-            pipeline.rpush(key, toStringArray(list));
-            Response<Long> ttl = pipeline.ttl(key);
-            pipeline.sync();
-            if(ttl.get() < 0){
-                jedis.expire(key, expiredSeconds);
-            }
+            String script =
+                    "local key = KEYS[1]\n" +
+                    "local expire = KEYS[2]\n" +
+                    "for index, value in pairs(ARGV) do\n" +
+                    "\tredis.call(\"rpush\", key, value)\n" +
+                    "end\n" +
+                    "local ttl = redis.call(\"ttl\", key)\n" +
+                    "if ttl < 0 then\n" +
+                    "\tredis.call(\"expire\", key, expire)\n" +
+                    "end\n";
+            jedis.eval(
+                    script,
+                    Arrays.asList(key, String.valueOf(expiredSeconds)),
+                    Arrays.asList(toStringArray(list))
+            );
         } finally {
             list.clear();
-            try {
-                jedis.close();
-                pipeline.close();
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-
+            jedis.close();
         }
     }
 

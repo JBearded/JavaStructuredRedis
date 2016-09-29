@@ -26,27 +26,7 @@ public class Main {
         jedisPoolConfig.setMaxWaitMillis(1000*5);
         RedisPoolManager.getInstance().init(jedisPoolConfig, "127.0.0.1", 6380, 1000*5);
 
-
-        RedisHash redisHash = Redis.hash("user-hash", User.class);
-
-        User user1 = new User(1, "da");
-        User user2 = new User(2, "hu");
-        User user3 = new User(3, "zi");
-        redisHash.set("1", user1);
-        redisHash.set("2", user2);
-        redisHash.set("3", user3);
-        redisHash.sync();
-
-
-        Map<String, User> map = redisHash.get();
-        Iterator<String> it = map.keySet().iterator();
-        while(it.hasNext()){
-            String key = it.next();
-            User user = map.get(key);
-            System.out.println(user.getName());
-        }
-
-
+        setTest();
     }
 
     public static void listTest(){
@@ -89,5 +69,27 @@ public class Main {
             System.out.println(user.getName());
         }
 
+    }
+
+    public static void hashTest() {
+
+        RedisHash redisHash = Redis.hash("user-hash", User.class);
+
+        User user1 = new User(1, "da");
+        User user2 = new User(2, "hu");
+        User user3 = new User(3, "zi");
+        redisHash.set("1", user1);
+        redisHash.set("2", user2);
+        redisHash.set("3", user3);
+        redisHash.sync();
+
+
+        Map<String, User> map = redisHash.get();
+        Iterator<String> it = map.keySet().iterator();
+        while(it.hasNext()){
+            String key = it.next();
+            User user = map.get(key);
+            System.out.println(user.getName());
+        }
     }
 }
